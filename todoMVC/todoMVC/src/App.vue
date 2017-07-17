@@ -4,10 +4,10 @@
         <section>
             <header class='header'>
                 <h1 class='title'>todos</h1>
-                <input  class='new-todo' placeholder='What needs to be done?' v-model='newTodo' @keyup.enter='addNewTodo'>
+                <input  class='new-todo' autofocus autocomplete='off' placeholder='What needs to be done?' v-model='newTodo' @keyup.enter='addTodo'>
             </header>
         </section>
-        <TodoList :todolist='todoList'></TodoList>
+        <TodoList :todos='todos'></TodoList>
         <section>
             <footer>
                 @copyright Dida
@@ -18,7 +18,7 @@
 
 <script>
 import TodoList from './components/TodoList.vue'
-import Local from './local.js'
+import Store from './Store.js'
 
 export default {
     name: 'app',
@@ -28,21 +28,25 @@ export default {
     data () {
       return {
         newTodo:'',
-        todoList: Local.fetch()
+        todos: Store.fetch()
       }
     },
     watch: {
-        todoList: {
+        todos: {
             handler: function () {
-                Local.save(this.todoList)
+                Store.save(this.todos)
             },
             deep: true
         }
     },
     methods: {
-        addNewTodo: function () {
-            console.log(this.todoList,this.newTodo)
-            this.todoList.push({
+        addTodo: function () {
+            console.log(this.todos,this.newTodo)
+            var value = this.newTodo && this.newTodo.trim()
+            if(!value){
+              return
+            }
+            this.todos.push({
                 label: this.newTodo,
                 isFinished: false
             })

@@ -1,32 +1,39 @@
 <template>
-    <section class="list-detail" v-show="isActive">
-        <span class="el-icon-arrow-down arrow-icon" ></span>
-        <ul class="list-items">
-            <li v-for="(item,index) in todolist" v-if="show">
-                <input type="checkbox" v-model="completed" :value="{{index}}">
-                <p>
-                    {{index+1}} 、
-                    {{item.label}}
-                    <span class="el-icon-close" @click="deleteTodo" :index='index'></span>
-                </p>
+    <section class='main' v-show='todos.length'>
+        <input class='el-icon-arrow-down arrow-icon' v-model='allDone'>
+        <ul class='todo-list'>
+            <li v-for='todo in filteredTodos'
+              class=''
+              :class='{completed: todo.completed, editing: todo == editedTodo}'>
+              <div class=''>
+                <input type='checkbox' v-model='todo.completed'>
+                <label @dblclick = 'editTodo(todo)'>{{ todo.label }}</label>
+                <span class='el-icon-close' @click='removeTodo(todo)'></span>
+              </div>
+              <input class='edit' type='text'
+                v-model='todo.title'
+                v-todo-focus='todo == editedTodo'
+                @blur = 'doneEdit(todo)'
+                @keyup.enter = 'doneEdit(todo)'
+                @keyup.esc = 'cancelEdit(todo)'>
             </li>
         </ul>
         <footer>
-            <span class="todo-count">
-                <strong>0</strong>items left
+            <span class='todo-count'>
+                <strong>{{remaining}}</strong> {{ remaining | pluralize}} left
             </span>
-            <ul class="todo-tool">
+            <ul class='filters'>
                 <li>
-                    <a @click="showAll">All</a>
+                    <a href='#/all' :class="{ selected: visibility == 'all'}">All</a>
                 </li>
                 <li>
-                    <a @click="showActive">Active</a>
+                    <a href='#/active' :class="{ selected: visibility == 'active'}">Active</a>
                 </li>
                 <li>
-                    <a @click="showFinish">Completed</a>
+                    <a href='#/completed' :class="{ selected: visibility == 'completed'}">Completed</a>
                 </li>
                 <li>
-                    <a>Clear completed</a>
+                    <a class='clear-completed' @click='removeCompleted' v-show='todos.length > remaining'>Clear completed</a>
                 </li>
             </ul>
         </footer>
@@ -34,92 +41,96 @@
 </template>
 
 <script>
+import filters from '../Filter.js'
 export default {
-    // name: 'todolist',
     data () {
         return {
-            msg: 'Welcome to Your Vue.js App',
-            index:'',
-            // completed:[],
-            show:true,
-            isActive:false
+            editedTodo: null,
+            visibility: 'all'
         }
     },
-    props: ['todolist'],
+    props: ['todos'],
     computed: {
-        completed: {
+        filteredTodos: function () {
+            return filters[this.visibility](this.todos)
+        },
+        remaining: function () {
+            return filters.active(this.todos).length
+        },
+        allDone: {
             get: function () {
                 // return this.isFinish;
+                return filters[this.visibility](this.todos)
             },
             set: function (value) {
                 console.log('dianji',this,value,this.completed)
                 // this.todolist.
                 // return this.isFinish;
-                var that = this;
-                this.todolist.forEach( function(element) {
-                    if(that.completed.indexOf(element)!==-1){
-                        element.isFinish=value;
-                    }
-                    console.log(element,element.isFinish)
+                this.todos.forEach(function (todo) {
+                    todo.isFinished = value
                 });
             }
         }
     },
-    watch: {
-        todolist: {
-            handler: function (){
-                if(this.todolist.length<0){
-                this.isActive=false;
-                }else{
-                this.isActive=true;
-                }
-            },
-            deep: true
+    filters:{
+        pluralize: function (n){
+            return n === 1 ? 'item' : 'items'
         }
-        // },
-        // completed: {
-        //     handler: function() {
-        //         console.log(completed);
-        //     }
-        // }
     },
     mounted () {
 
     },
     methods: {
-        deleteTodo: function () {
-            this.todolist.splice(this.index,1);
+        removeTodo: function (todo) {
+            this.todos.splice(this.todos.indexOf(todo),1);
         },
-        showAll: function () {
-
+        editTodo: function (todo) {
+            this.beforeEditCache = todo.label;
+            this.editedTodo = todo;
         },
-        showActive: function () {
-            var that = this;
-            that.todolist.forEach( function(element, index) {
-                if(element.isFinish){
-                    that.show=false;
-                }else{
-                    that.show=true;
-                }
-            });
+        doneEdit: function (todo) {
+            if(!this.editedTodo) {
+                return
+            }
+            this.editedTodo = null
+            todo.label = todo.label.trim()
+            if (!todo.label){
+                this.removeTodo(todo)
+            }
         },
-        showFinish: function () {
-            var that = this;
-            that.todolist.forEach( function(element, index) {
-                if(element.isFinish){
-                    that.show=true;
-                }else{
-                    that.show=false;
-                }
-            });
+        cancelEdit: function (todo) {
+            this.editedTodo = null
+            todo.label = this.beforeEditCache
+        },
+        removeCompleted: function () {
+            this.todos = filters.active(this.todos)
+        }
+    },
+    directives: {
+        'todo-focus': function (el, binding) {
+            if(binding.value) {
+                el.focus()
+            }
         }
     }
 }
+function onHashChange () {
+    var visibility = window.location.hash.replace(/#\/?/, '')
+    if(filters[visibility]) {
+        app.visibility = visibility
+    } else {
+        window.location.hash = ''
+        app.visibility = 'all'
+    }
+}
+
+window.addEventListener('hashchange', onHashChange)
+onHashChange()
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style scoped>
-.list-detail{
+.main{
     position: relative;
 }
 .arrow-icon{
@@ -136,7 +147,7 @@ ul{
     margin: 0;
     padding: 0;
 }
-.list-items li{
+.todo-list li{
     border-bottom: 1px solid #ededed;
     height: 40px;
     line-height: 40px;
@@ -144,17 +155,17 @@ ul{
     font-size: 18px;
     text-align: left;
 }
-.list-items li input{
+.todo-list li input{
     width: 20px;
     height: 20px;
 }
-.list-items li p {
+.todo-list li p {
     width: 540px;
     margin: 0;
     display: inline-block;
 
 }
-.list-items li p span{
+.todo-list li p span{
     float: right;
     padding-top: 10px;
 }
@@ -163,12 +174,12 @@ ul{
     width: 100px;
     float: left;
 }
-.todo-tool li{
+.filters li{
     text-align: right;
     display: inline-block;
     width: 105px;
 }
-.todo-tool li:last-child{
+.filters li:last-child{
     width: 150px;
 }
 </style>
