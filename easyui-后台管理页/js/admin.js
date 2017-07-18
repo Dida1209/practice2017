@@ -1,7 +1,6 @@
-($(function(){
-    $('#north').layout({
-        region: 'north',
-        noheader: true,
-
+$(function(){
+    $('#tabs').tabs({
+        fit: true,
+        border: false
     })
-})())
+})

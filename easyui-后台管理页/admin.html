@@ -2,14 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" href="easyui/themes/icon.css">
     <link rel='stylesheet' href="css/admin.css">
     <title>后台管理页</title>
 </head>
-<body>
-    <div id='north'>后台管理页</div>
-    <div id='west'></div>
-    <div id='center'></div>
-    <div id='south'></div>
+<body class="easyui-layout">
+    <div data-options="region:'north',title:'North Title',split:true,noheader:true" style="height:60px;background: #666">
+        <div class="logo">后台管理</div>
+        <div class="loginout">你好，{{}}<a> 退出</a></div>
+    </div>
+    <div data-options="region:'south',title:'South Title',split:true,noheader:true" iconCls="icon-world" style="height:40px; line-height: 30px;text-align: center;">
+        &copy;Dida easyui
+    </div>
+    <div data-options="region:'west',title:'导航',split:true" style="width:180px;padding: 10px;"></div>
+    <div data-options="region:'center'" style="padding:5px;background:#eee;">
+        <div id="tabs">
+            <div title="起始页" style="padding: 0 10px;display: block;">
+                欢迎来到后台管理页
+            </div>
+        </div>
+    </div>
 </body>
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
 <script type='text/javascript' src='js/admin.js'></script>
 </html>
