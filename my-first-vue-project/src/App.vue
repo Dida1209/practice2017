@@ -3,7 +3,7 @@
     <h1>{{title}}</h1>
     <input v-model='newItem' @keyup.enter='addNew'>
     <ul>
-      <li v-for='item in items' 
+      <li v-for='item in items'
       v-bind:class='{finished:item.isFinished}'
       v-on:click='toggleFinish(item)'
       >
@@ -26,7 +26,7 @@ export default {
       title: 'this is a todo list!',
       items: Store.fetch() ,
       newItem: ''   ,
-      childword:''  
+      childword:''
     }
   },
   components: {
@@ -40,11 +40,6 @@ export default {
       deep: true
     }
   },
-  events:{
-    'child-function':function(msg){
-      this.childword=msg;
-    }
-  },
   methods: {
     toggleFinish: function(item){
       item.isFinished = !item.isFinished;
@@ -55,6 +50,10 @@ export default {
         isFinished:false
       })
       this.newItem='';
+    },
+    childFunction:function(msg){
+      console.log('father')
+      this.childword=msg;
     }
   }
 }

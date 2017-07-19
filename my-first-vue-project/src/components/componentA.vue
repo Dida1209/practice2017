@@ -17,7 +17,7 @@ export default {
   methods:{
   	onClickMe:function(){
   		console.log(this.msgFather);
-  		this.$dispatch('child-function','emit function on');
+  		this.$emit('child-function','emit function on');
   	}
   }
 }
