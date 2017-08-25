@@ -3,16 +3,17 @@
 </template>
 <script>
 import ECharts from 'vue-echarts/components/ECharts.vue'
-// import 'echarts/lib/chart/map'
+import 'echarts/lib/chart/map'
 import {geoCoordMap as geoCoordMap, mapInit as mapInit} from './geo/geoMapData.js'
 import 'echarts/map/js/china.js'
+
 export default {
     components: {
         'chart': ECharts
     },
     data: function() {
         return {
-            geoCoordMap: geoCoordMap,
+            // geoCoordMap: geoCoordMap,
             map: mapInit           
         }
     }
